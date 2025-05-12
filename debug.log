@@ -1,0 +1,4 @@
+[0426/090710.382:ERROR:registration_protocol_win.cc(108)] CreateFile: The system cannot find the file specified. (0x2)
+[0426/090739.283:ERROR:registration_protocol_win.cc(108)] CreateFile: The system cannot find the file specified. (0x2)
+[0426/090740.618:ERROR:crashpad_client_win.cc(868)] not connected
+[0426/090747.203:ERROR:registration_protocol_win.cc(108)] CreateFile: The system cannot find the file specified. (0x2)

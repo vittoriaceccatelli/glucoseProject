@@ -1,0 +1,17 @@
+ID,Gender,HbA1c,DiabStatus
+1,FEMALE,5.5,Normoglycemic
+2,MALE,5.6,Normoglycemic
+3,FEMALE,5.9,Hyperglycemic
+4,FEMALE,6.4,Hyperglycemic
+5,FEMALE,5.7,Hyperglycemic
+6,FEMALE,5.8,Hyperglycemic
+7,FEMALE,5.3,Normoglycemic
+8,FEMALE,5.6,Normoglycemic
+9,MALE,6.1,Hyperglycemic
+10,FEMALE,6.0,Hyperglycemic
+11,MALE,6.0,Hyperglycemic
+12,MALE,5.6,Normoglycemic
+13,MALE,5.7,Hyperglycemic
+14,MALE,5.5,Normoglycemic
+15,FEMALE,5.5,Normoglycemic
+16,MALE,5.5,Normoglycemic
