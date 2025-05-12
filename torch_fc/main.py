@@ -1,4 +1,3 @@
-from pathlib import Path
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor
 from lightning.pytorch.loggers import TensorBoardLogger
@@ -39,7 +38,12 @@ data["time_idx"] = data.groupby("Participant_ID")["time_idx"].transform(lambda x
 data["time_idx"] = pd.to_numeric(data["time_idx"], downcast='integer')
 
 
-data["delta_t"] = data.groupby("Participant_ID")["time_idx"].diff().fillna(0).astype(int)
+data["Time"] = pd.to_datetime(data["Time"])
+data["delta_t"] = 0
+for i in data["Participant_ID"].unique():
+    part_data = data[data["Participant_ID"]==i].copy()
+    delta_t = part_data["Time"].diff().dt.total_seconds().fillna(0).astype(int)
+    data.loc[part_data.index, "delta_t"] = delta_t
 
 data["Participant_ID"] = data["Participant_ID"].astype(str)
 
@@ -47,9 +51,9 @@ data = data.drop(columns=["Time"])
 
 last_day_data = data.groupby("Participant_ID").apply(lambda x: x[x["time_idx"] >= x["time_idx"].max() - (24 * 60)]).reset_index(drop=True)
 
-max_prediction_length = 576
-min_prediction_length=288
-max_encoder_length = 576
+max_prediction_length = 288
+min_prediction_length= 144
+max_encoder_length = 288
 training_cutoff = data["time_idx"].max() - max_prediction_length
 
 training = TimeSeriesDataSet(
@@ -103,7 +107,7 @@ if __name__ == '__main__':
 
     trainer = pl.Trainer(
         accelerator="cuda",
-        max_epochs=50,
+        max_epochs=25,
         devices=1,
         strategy="auto",
         enable_model_summary=True,
@@ -129,20 +133,14 @@ if __name__ == '__main__':
 
     trainer.fit(best_tft, train_dataloaders=train_dataloader, val_dataloaders=val_dataloader)
 
-    prediction_output, x, y, a, c = best_tft.predict(
-        val_dataloader,
-        mode = "raw",
-        return_x=True,
-        return_y=True,
-        trainer_kwargs=dict(accelerator="cpu")
-    )
+    prediction_output, x, y, a, c = best_tft.predict(val_dataloader, mode = "raw", return_x=True, return_y=True, trainer_kwargs=dict(accelerator="cpu"))
 
     records = []
 
     for i in range(len(prediction_output)):
-        participant_id = x["groups"][i, 0].item()  # Get the participant ID
-        time_indices = x["decoder_time_idx"][i].detach().cpu().numpy()  # Get the time indices
-        preds = prediction_output[i].detach().cpu().numpy()  # Get the predictions
+        participant_id = x["groups"][i, 0].item() 
+        time_indices = x["decoder_time_idx"][i].detach().cpu().numpy()
+        preds = prediction_output[i].detach().cpu().numpy() 
 
         if len(time_indices) != len(preds):
             print(f"Mismatch in length between time indices and predictions: {len(time_indices)} vs {len(preds)}")
@@ -154,24 +152,29 @@ if __name__ == '__main__':
                 records.append({
                     "Participant_ID": participant_id,
                     "time_idx": time_idx,
-                    "Predicted": pred_value,
-                })
-            else:
-                print(f"Index {j} out of bounds for predictions with length {len(preds)}")
+                    "Predicted": pred_value})
 
     df = pd.DataFrame(records)
-    df.to_csv("detailed_predictions.csv", index=False)
+    df.to_csv(rf"D:\Vittoria\Code\torch_fc\detailed_predictions.csv", index=False)
 
-    for idx in range(13):
-        best_tft.plot_prediction(x, prediction_output, idx=idx)
-        plt.savefig(f"forecast_sample_{idx+1}.png", dpi=300)
+    for idx in range(len(preds)):
+        fig = best_tft.plot_prediction(x, prediction_output, idx=idx, add_loss_to_title=True)
+        fig.savefig(rf"D:\Vittoria\Code\torch_fc\plots\forecast_sample_{idx+1}.png", dpi=300, bbox_inches="tight")
+        plt.close(fig)
     
-    prediction = best_tft.predict(
-        val_dataloader,
-        return_x=True,
-        return_y=True,
-        trainer_kwargs=dict(accelerator="cpu")
-    )
+    prediction = best_tft.predict(val_dataloader, return_x=True, return_y=True, trainer_kwargs=dict(accelerator="cpu"))
 
     print(MAPE()(prediction.output, prediction.y))
     print(RMSE()(prediction.output, prediction.y))
+
+    prediction, x, _, _, _ = best_tft.predict(val_dataloader, return_x=True, trainer_kwargs=dict(accelerator="cpu"))
+    predictions_vs_actuals = best_tft.calculate_prediction_actual_by_variable(x, prediction)
+    figures_dict = best_tft.plot_prediction_actual_by_variable(predictions_vs_actuals)
+    for variable_name, fig in figures_dict.items():
+        fig.savefig(rf"D:\Vittoria\Code\torch_fc\plots\prediction_vs_actual_{variable_name}.png", bbox_inches="tight")
+        plt.close(fig)
+
+    raw_predictions = best_tft.predict(val_dataloader, mode = "raw", trainer_kwargs=dict(accelerator="cpu"))
+    interpretation = best_tft.interpret_output(raw_predictions, reduction="mean")
+    best_tft.plot_interpretation(interpretation)
+    plt.savefig(rf"D:\Vittoria\Code\torch_fc\plots\tft_interpretation.png")
