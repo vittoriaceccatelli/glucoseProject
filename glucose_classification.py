@@ -39,10 +39,10 @@ for part in range (1, 17):
 #concatenate all particiapnts, drop irrelevant columns and save to csv
 final_classified_df = pd.concat(result_dfs, ignore_index=True)
 final_classified_df = final_classified_df.drop(columns=["LowThreshold","HighThreshold"])
-final_classified_df.to_csv(r'data\dexcom\dexcom_classified.csv', index=False)
+#final_classified_df.to_csv(r'data\dexcom\dexcom_classified.csv', index=False)
 
 classified_and_nonzero = final_classified_df[final_classified_df["Glucose_Mean"].notna()] 
-classified_and_nonzero.to_csv(r'data\dexcom\dexcom_classified_and_nonzero.csv', index=False)
+#classified_and_nonzero.to_csv(r'data\dexcom\dexcom_classified_and_nonzero.csv', index=False)
 
 
 
@@ -58,10 +58,8 @@ sns.boxplot(
     order=sorted(classified_and_nonzero["Participant_ID"].unique())
 )
 plt.xlabel("Participant ID", fontsize=12)
-plt.ylabel("Interstitial Glucose Values in mg/dL", fontsize=12)
-plt.title("Glucose Levels by Participant and PersStatus", fontsize=14, fontweight="bold")
+plt.ylabel("Interstitial Glucose Values [mg/dL]", fontsize=12)
 plt.legend()
-plt.xticks(rotation=45)
 file_save = rf'D:\Vittoria\Code\data\plots\pers_plots\pers_plots_per_participant'
 plt.savefig(file_save)
 
@@ -78,13 +76,12 @@ count_low = pers_low.Glucose_Mean.value_counts()
 
 #figure showing count of interstitial glucose values divided into different pers classes
 plt.figure(figsize=(12, 6))
-plt.bar(count_norm.index, count_norm, color="slategrey", alpha=0.5, label="Normal")
-plt.bar(count_high.index, count_high, color="coral", alpha=0.5, label="High")
-plt.bar(count_low.index, count_low, color="teal", alpha=0.5, label="Low")
-plt.title("Interstitial Glucose Values divided by PersStatus", fontsize=14, fontweight="bold")
-plt.xlabel("Interstitial Glucose Values in mg/dL", fontsize=12)
+plt.bar(count_norm.index, count_norm, color="slategrey", alpha=0.5, label="PersNorm")
+plt.bar(count_high.index, count_high, color="coral", alpha=0.5, label="PersHigh")
+plt.bar(count_low.index, count_low, color="teal", alpha=0.5, label="PersLow")
+plt.xlabel("Interstitial Glucose Values [mg/dL]", fontsize=12)
 plt.ylabel("Count", fontsize=12)
-plt.legend()
+plt.legend(fontsize=14)
 file_save = rf'D:\Vittoria\Code\data\plots\pers_plots\pers_plots'
 #plt.show()
 plt.savefig(file_save)

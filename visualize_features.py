@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 
 features_path = r'D:\Vittoria\Code\data'
-'''
+
 #plots all features for all participants
 file_path = rf'{features_path}\all_features.csv'
 for part in range (1, 17):
@@ -35,9 +35,9 @@ for part in range (1, 17):
     plt.title(f"Time-Series Plot for Glucose_Mean")
     plt.legend()
     plt.savefig(rf'{features_path}\plots\dexcom_plots\{part}_Glucose_Mean')
-'''
 
-#plots HbA1c values of all participants in a bar plot with different colours for women and men
+
+'''#plots HbA1c values of all participants in a bar plot with different colours for women and men
 #horizontal line characterizing prediabetes range 
 path = rf'{features_path}\demographics.csv'
 data = pd.read_csv(path)
@@ -49,6 +49,6 @@ plt.bar(female_data.index, female_data["HbA1c"], color="red", label="Female", al
 plt.axhline(y=5.7, color='r', linestyle='-')
 plt.axhline(y=6.4, color='r', linestyle='-')
 plt.legend()
-plt.xlabel("Feature Name")
-plt.ylabel("Value")
-plt.savefig(rf'{features_path}\plots\HbA1c')
+plt.xlabel("Participant ID")
+plt.ylabel("HbA1c Value")
+plt.savefig(rf'{features_path}\plots\HbA1c')'''

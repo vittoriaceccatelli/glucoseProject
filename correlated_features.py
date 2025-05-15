@@ -19,9 +19,11 @@ data['Gender'] = data['Gender'].map({'MALE': 0, 'FEMALE': 1})
 correlation_matrix = data.select_dtypes(include=[np.number]).corr(method="spearman")
 correlation_matrix = correlation_matrix.drop(columns=['Glucose_Mean'], index=['Glucose_Mean'])
 
+model = "XGBoost"
+label = "Prediction"
 
-model = input("XGBoost or RandomForest? ")
-label = input("Prediction or Classification? ")
+#model = input("XGBoost or RandomForest? ")
+#label = input("Prediction or Classification? ")
 
 correlation_matrix.to_csv(rf"D:\Vittoria\Code\data\correlation_matrix_{model}_{label}.csv", index = False)
 
@@ -43,7 +45,7 @@ importance = importance.set_index("Feature").T
 plt.figure(figsize=(12, 8))
 sns.set(font_scale=0.5)
 sns.heatmap(correlation_matrix, cmap="coolwarm", linewidths=0.5, xticklabels=True, yticklabels=True)
-plt.title(f"Feature Correlation Matrix, Spearman, {model}, {label}")
+plt.title(f"Feature Correlation Plot", fontsize=14)
 plt.tight_layout()
 plt.savefig(rf"D:\Vittoria\Code\data\plots\correlation_plots\before_drop_{model}_{label}")
 #plt.show()
@@ -66,14 +68,19 @@ for i in range(len(correlation_matrix.columns)):
                     to_drop.add(col1)
 
 data = data.drop(columns=to_drop)
-data.to_csv(rf"D:\Vittoria\Code\data\labeled_features_no_correlation_{model}_{label}.csv", index = False)
+#data.to_csv(rf"D:\Vittoria\Code\data\labeled_features_no_correlation_{model}_{label}.csv", index = False)
 
 correlation_matrix = data.select_dtypes(include=[np.number]).corr(method="spearman")
 
+if label=="Prediction":
+    l="Regression"
+else:
+    l=label
+
 plt.figure(figsize=(12, 8))
-sns.set(font_scale=0.5)
+sns.set(font_scale=0.8)
 sns.heatmap(correlation_matrix, cmap="coolwarm", linewidths=0.5, xticklabels=True, yticklabels=True)
-plt.title(f"Feature Correlation Matrix, Spearman, Threshold {threshold}, {model}, {label}")
+plt.title(f"Feature Correlation Plot using feature importances from the {model} model for the {l} task", fontsize=14)
 plt.tight_layout()
 #plt.show()
 plt.savefig(rf"D:\Vittoria\Code\data\plots\correlation_plots\after_drop_{model}_{label}")

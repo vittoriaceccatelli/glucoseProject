@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import torch
 from pytorch_forecasting import TemporalFusionTransformer, TimeSeriesDataSet
-from pytorch_forecasting.data import GroupNormalizer
+from pytorch_forecasting.data import GroupNormalizer, EncoderNormalizer
 from pytorch_forecasting.metrics import MAPE, RMSE
 from pytorch_forecasting.models.temporal_fusion_transformer.tuning import (optimize_hyperparameters,)
 import matplotlib.pyplot as plt
@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 pl.seed_everything(42)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-#PREDICTION
 data = pd.read_csv(r"D:\Vittoria\Code\data\labeled_features.csv")
 demo = pd.read_csv(r"D:\Vittoria\Code\data\demographics.csv")
 data = pd.merge(data, demo, left_on="Participant_ID", right_on="ID")
@@ -38,22 +37,13 @@ data["time_idx"] = data.groupby("Participant_ID")["time_idx"].transform(lambda x
 data["time_idx"] = pd.to_numeric(data["time_idx"], downcast='integer')
 
 
-data["Time"] = pd.to_datetime(data["Time"])
-data["delta_t"] = 0
-for i in data["Participant_ID"].unique():
-    part_data = data[data["Participant_ID"]==i].copy()
-    delta_t = part_data["Time"].diff().dt.total_seconds().fillna(0).astype(int)
-    data.loc[part_data.index, "delta_t"] = delta_t
-
 data["Participant_ID"] = data["Participant_ID"].astype(str)
 
 data = data.drop(columns=["Time"])
 
-last_day_data = data.groupby("Participant_ID").apply(lambda x: x[x["time_idx"] >= x["time_idx"].max() - (24 * 60)]).reset_index(drop=True)
-
 max_prediction_length = 288
-min_prediction_length= 144
-max_encoder_length = 288
+min_prediction_length= 1
+max_encoder_length = 1440
 training_cutoff = data["time_idx"].max() - max_prediction_length
 
 training = TimeSeriesDataSet(
@@ -80,19 +70,15 @@ training = TimeSeriesDataSet(
                    "Eat_cnt_8h","Eat_mean_8h","Calories_24h","Protein_24h","Sugar_24h","Carbs_24h","Eat_cnt_24h",
                    "Eat_mean_24h"],
     time_varying_unknown_categoricals=[],
-    time_varying_unknown_reals=[
-        "target"
-    ],
-    target_normalizer=GroupNormalizer(
-        groups=["Participant_ID"], transformation="softplus"
-    ),
+    time_varying_unknown_reals=["target"],
+    target_normalizer=EncoderNormalizer(),
     add_relative_time_idx=True,
     add_target_scales=True,
     add_encoder_length=True,
     allow_missing_timesteps=True,
 )
-
-validation = TimeSeriesDataSet.from_dataset(training, last_day_data, predict=True, stop_randomization=True)
+ 
+validation = TimeSeriesDataSet.from_dataset(training, data, predict=True, stop_randomization=True)
 
 batch_size = 32
 

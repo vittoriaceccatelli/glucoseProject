@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from pytorch_forecasting import TemporalFusionTransformer, TimeSeriesDataSet
-from pytorch_forecasting.data import GroupNormalizer
+from pytorch_forecasting.data import GroupNormalizer, EncoderNormalizer
 from pytorch_forecasting.metrics import MAPE, RMSE
 from pytorch_forecasting.models.temporal_fusion_transformer.tuning import (optimize_hyperparameters,)
 import matplotlib.pyplot as plt
@@ -36,22 +36,13 @@ data["time_idx"] = data.groupby("Participant_ID")["time_idx"].transform(lambda x
 data["time_idx"] = pd.to_numeric(data["time_idx"], downcast='integer')
 
 
-data["Time"] = pd.to_datetime(data["Time"])
-data["delta_t"] = 0
-for i in data["Participant_ID"].unique():
-    part_data = data[data["Participant_ID"]==i].copy()
-    delta_t = part_data["Time"].diff().dt.total_seconds().fillna(0).astype(int)
-    data.loc[part_data.index, "delta_t"] = delta_t
-
 data["Participant_ID"] = data["Participant_ID"].astype(str)
 
 data = data.drop(columns=["Time"])
 
-last_day_data = data.groupby("Participant_ID").apply(lambda x: x[x["time_idx"] >= x["time_idx"].max() - (24 * 60)]).reset_index(drop=True)
-
 max_prediction_length = 288
-min_prediction_length= 144
-max_encoder_length = 288
+min_prediction_length= 1
+max_encoder_length = 2880
 training_cutoff = data["time_idx"].max() - max_prediction_length
 
 training = TimeSeriesDataSet(
@@ -78,16 +69,14 @@ training = TimeSeriesDataSet(
     time_varying_unknown_reals=[
         "target"
     ],
-    target_normalizer=GroupNormalizer(
-        groups=["Participant_ID"], transformation="softplus"
-    ),
+    target_normalizer=EncoderNormalizer(),
     add_relative_time_idx=True,
     add_target_scales=True,
     add_encoder_length=True,
     allow_missing_timesteps=True,
 )
 
-validation = TimeSeriesDataSet.from_dataset(training, last_day_data, predict=True, stop_randomization=True)
+validation = TimeSeriesDataSet.from_dataset(training, data, predict=True, stop_randomization=True)
 
 batch_size = 32
 

@@ -22,8 +22,8 @@ def loop_through_all(chosen_model, label, dataset, foodfeatures):
     #import dataset 
     if dataset=="Labeled":
         data = pd.read_csv(r"D:\Vittoria\Code\data\labeled_features.csv")
-        #demo = pd.read_csv(r"D:\Vittoria\Code\data\labeled_demographics.csv")
-        #data = pd.merge(data, demo, left_on="Participant_ID", right_on="ID")
+        demo = pd.read_csv(r"D:\Vittoria\Code\data\labeled_demographics.csv")
+        data = pd.merge(data, demo, left_on="Participant_ID", right_on="ID")
         data['Gender'] = data['Gender'].map({'MALE': 0, 'FEMALE': 1})
         feature_columns = [col for col in data.columns if col not in ['Time', 'PersStatus', 'Glucose_Mean', 'DiabStatus', 'ID']]
         if foodfeatures=="FoodNo":
@@ -107,15 +107,20 @@ def loop_through_all(chosen_model, label, dataset, foodfeatures):
     #if dataset == "Labeled":
         #sorted_df.to_csv(rf"D:\Vittoria\Code\data\sorted_importance_{chosen_model}_{label}_{dataset}_{foodfeatures}.csv", index=False)
 
+    if label=="Prediction":
+        l="Regression"
+    else:
+        l=label
+
     #plot a bar plot with all features and their importances in descending order
     plt.figure(figsize=(10, 6))
     plt.bar(sorted_features, sorted_importance, color='skyblue')
     plt.xticks(rotation=90, ha='right', fontsize=5)
     plt.ylabel("Feature Importance")
-    plt.title(f"Feature Importance Bar Plot, {chosen_model}, {label}, {dataset}, {foodfeatures}")
+    plt.title(f"Feature Importance Bar Plot according to {chosen_model} for the {l} task")
     plt.tight_layout(rect=[0, 0, 1, 0.96])
-    plt.show()
-    #plt.savefig(fr"D:\Vittoria\Code\data\plots\feature_importance_bar\{chosen_model}_{label}_{dataset}_{foodfeatures}.png")
+    #plt.show()
+    plt.savefig(fr"D:\Vittoria\Code\data\plots\feature_importance_bar\{chosen_model}_{label}_{dataset}_{foodfeatures}.png")
 
     if dataset=="Labeled":
         #categorise all features in following categories
@@ -301,29 +306,28 @@ def loop_through_all(chosen_model, label, dataset, foodfeatures):
 
     # Inner pie
     mypie2, _ = ax.pie(filtered_source_df['Importance'], 
-                    labels=inner_labels,
                     startangle=90, radius=1-size, colors=inner_colors,
                     wedgeprops=dict(width=size, edgecolor='w'), 
                     labeldistance=0.55, textprops={'fontsize': 12})
 
     # Legend
     legend_patches = [mpatches.Patch(color=color, label=label) for color, label in zip(outer_colors, outer_labels)]
-    ax.legend(handles=legend_patches, loc='upper left', bbox_to_anchor=(0.75, 1), fontsize=12)
+    ax.legend(handles=legend_patches, loc='upper left', bbox_to_anchor=(0.75, 1), fontsize=14)
 
     ax.set(aspect="equal")
-    ax.set_title(f'Feature Importance Pie Plot, {chosen_model}, {label}, {dataset}, {foodfeatures}', fontsize=24)
+    ax.set_title(f'Feature Importance Pie Plot according to {chosen_model} for the {l} task', fontsize=24)
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
-    plt.show()
+    #plt.show()
 
-    #plt.savefig(rf"D:\Vittoria\Code\data\plots\feature_importance_pie\{chosen_model}_{label}_{dataset}_{foodfeatures}.png")
+    plt.savefig(rf"D:\Vittoria\Code\data\plots\feature_importance_pie\{chosen_model}_{label}_{dataset}_{foodfeatures}.png")
 
 #chosen_model = input("XGBoost or RandomForest? ")
 #label = input("Prediction or Classification? ")
 #dataset = input("Labeled or NoCorrelation? ")
 #foodfeatures = input("FoodYes or FoodNo? ")
 
-chosen_model = ["RandomForest", "XGBoost"]
+chosen_model = [ "XGBoost", "RandomForest"]
 label = ["Prediction", "Classification"]
 dataset = ["Labeled", "NoCorrelation"]
 foodfeatures = ["FoodYes", "FoodNo"]

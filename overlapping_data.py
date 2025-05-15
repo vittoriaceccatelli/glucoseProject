@@ -185,4 +185,4 @@ discarded['discarded_percent'] = (1-discarded['discarded_data_y']/discarded['dis
 discarded = discarded.drop(columns=['key_0', 'discarded_data_x'])
 discarded.rename(columns={"discarded_data_y": "datapoints_remaining"}, inplace=True)
 discarded['percent_of_dataset'] = discarded['datapoints_remaining']/all.shape[0]*100
-discarded.to_csv(r'data\numbers_discarded.csv', index=False)
+#discarded.to_csv(r'data\numbers_discarded.csv', index=False)
