@@ -36,7 +36,7 @@ for part in range(1, 17):
     df_list.append(part_data)
 
 df = pd.DataFrame(df_list)
-#df.to_csv(r"D:\Vittoria\Code\data\persClasses_before_balancing.csv")
+#df.to_csv(r"D:\Vittoria\Code\data\balanced_datasets\persClasses_before_balancing.csv")
 
 #separate DataFrame into different classes
 df_persnorm = data[data['PersStatus'] == 'PersNorm']
@@ -54,8 +54,8 @@ df_balanced = pd.concat([df_persnorm_sampled, df_pershigh_sampled, df_perslow_sa
 df_balanced = df_balanced.sort_values(by=['Participant_ID', 'Time']).reset_index(drop=True)
 
 #merge features and demographics data and save balanced features+demographics information
-#df_balanced.to_csv(r'data\martin\balanced_dataset_martin.csv', index=False)
-df_balanced.to_csv(r'data\martin\balanced_dataset_martin_no_correlation.csv', index=False)
+#df_balanced.to_csv(r'D:\Vittoria\Code\data\martin\balanced_dataset_martin.csv', index=False)
+df_balanced.to_csv(r'D:\Vittoria\Code\data\martin\balanced_dataset_martin_no_correlation.csv', index=False)
 
 
 df_list = []
@@ -73,4 +73,4 @@ for part in range(1, 17):
     df_list.append(part_data)
 
 df = pd.DataFrame(df_list)
-#df.to_csv(r"D:\Vittoria\Code\data\persClasses_after_balancing.csv")
+#df.to_csv(r"D:\Vittoria\Code\data\balanced_datasets\persClasses_after_balancing.csv")

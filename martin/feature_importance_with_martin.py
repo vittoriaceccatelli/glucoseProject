@@ -17,7 +17,7 @@ from xgboost import XGBRegressor, XGBClassifier
 
 #import balanced dataset 
 data = pd.read_csv(r"D:\Vittoria\Code\data\martin\martins_features.csv")
-demo = pd.read_csv(r"D:\Vittoria\Code\data\labeled_demographics.csv")
+demo = pd.read_csv(r"D:\Vittoria\Code\data\other\labeled_demographics.csv")
 data = pd.merge(data, demo, left_on="Participant_ID", right_on="ID")
 data['Gender'] = data['Gender'].map({'MALE': 0, 'FEMALE': 1})
 

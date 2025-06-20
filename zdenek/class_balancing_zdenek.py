@@ -39,7 +39,6 @@ df_perslow = data[data['PersStatus'] == 'PersLow']
 target_n_samples = min([len(df_persnorm), len(df_pershigh), len(df_perslow)])
 
 #randomly drop datapoints from the dataframes so that in the end all three dataframes have the same amount of datapoints 
-#CORIN SUGGESTED TO DROP maybe a whole participant with a lot of persnorms etc ... but how?
 df_persnorm_sampled = df_persnorm.sample(n=target_n_samples, random_state=42)
 df_pershigh_sampled = df_pershigh.sample(n=target_n_samples, random_state=42)
 df_perslow_sampled = df_perslow.sample(n=target_n_samples, random_state=42)

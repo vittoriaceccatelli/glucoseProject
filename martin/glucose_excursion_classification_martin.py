@@ -103,33 +103,3 @@ plt.ylabel("True Label")
 plt.title("Confusion Matrix - Decision Tree")
 #plt.show()
 
-
-
-
-
-
-
-
-
-lr_model = LogisticRegression(max_iter=1000, random_state=42)
-accuracy_list, precision_list, recall_list, f1_list, r2_list = [], [], [], [], []
-for i in range (10):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y)
-    lr_model.fit(X_train, y_train)
-    y_pred_lr = lr_model.predict(X_test)
-
-    # Compute metrics
-    accuracy_list.append(balanced_accuracy_score(y_test, y_pred_lr))
-    precision_list.append(precision_score(y_test, y_pred_lr, average="weighted"))
-    recall_list.append(recall_score(y_test, y_pred_lr, average="weighted"))
-    f1_list.append(f1_score(y_test, y_pred_lr, average="weighted"))
-    r2_list.append(r2_score(y_test, y_pred_lr))
-
-    report = classification_report(y_test, y_pred_lr)
-
-# Compute mean and standard deviation for each metric
-print("Logistic Regression Metrics (Mean ± Std Dev)")
-print(f"Balanced Accuracy: {np.mean(accuracy_list) * 100:.2f}% ± {np.std(accuracy_list) * 100:.2f}%")
-print(f"Precision: {np.mean(precision_list) * 100:.2f}% ± {np.std(precision_list) * 100:.2f}%")
-print(f"Recall: {np.mean(recall_list) * 100:.2f}% ± {np.std(recall_list) * 100:.2f}%")
-print(f"F1 Score: {np.mean(f1_list) * 100:.2f}% ± {np.std(f1_list) * 100:.2f}%")

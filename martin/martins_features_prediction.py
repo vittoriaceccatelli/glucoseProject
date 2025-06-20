@@ -19,7 +19,7 @@ from sklearn.inspection import permutation_importance
 data = pd.read_csv(r"D:\Vittoria\Code\data\martin\only_martins_features.csv")
 data = data[data['patient_id'].apply(lambda x: isinstance(x, (int, float)) and float(x).is_integer())]
 
-#demo = pd.read_csv(r"D:\Vittoria\Code\data\labeled_demographics.csv")
+#demo = pd.read_csv(r"D:\Vittoria\Code\data\other\labeled_demographics.csv")
 #data = pd.merge(data, demo, left_on="Participant_ID", right_on="ID")
 #data['Gender'] = data['Gender'].map({'MALE': 0, 'FEMALE': 1})
 
